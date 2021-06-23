@@ -1,0 +1,35 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dealership Review - About Us</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Best Car</a>
+            </div>
+            <ul class="nav navbar-expand-sm flex-grow-1">
+                <li class="nav-item">
+                    <a class="btn btn-link" href="{% url 'djangoapp:about' %}">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-link" href="{% url 'djangoapp:contact' %}">Contact Us</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>About Us</h1>
+        <h2>
+            Welcome to Best Cars dealership, home to the best cars in North America. We sell domestic and imported cars
+            at
+            reasonable prices.
+        </h2>
+    </div>
+</body>
+
+</html>
