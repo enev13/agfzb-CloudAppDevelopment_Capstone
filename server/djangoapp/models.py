@@ -87,28 +87,37 @@ class CarDealer:
 
 
 # <HINT> Create a plain Python class `DealerReview` to hold review data
-class DealerReview:
+class DealerReview():
     
-    def __init__(self, dealership, name, purchase, review, purchase_date, car_make, car_model, car_year, id):
+    def __init__(self, **kwargs):
         from .restapis import analyze_review_sentiments
         # Dealership
-        self.dealership = dealership
+        if 'dealership' in kwargs:
+            self.dealership = kwargs['dealership']
         # Reviewer name
-        self.name = name
+        if 'name' in kwargs:
+            self.name = kwargs['name']
         # Purchase
-        self.purchase = purchase
+        if 'purchase' in kwargs:
+            self.name = kwargs['purchase']
         # Purchase date
-        self.purchase_date = purchase_date
+        if 'purchase_date' in kwargs:
+            self.purchase_date = kwargs['purchase_date']
         # Car Make
-        self.car_make = car_make
+        if 'car_make' in kwargs:
+            self.car_make = kwargs['car_make']
         # Car Model
-        self.car_model = car_model
+        if 'car_model' in kwargs:
+            self.car_model = kwargs['car_model']
         # Car year
-        self.car_year = car_year
+        if 'car_year' in kwargs:
+            self.car_year = kwargs['car_year']
         # Id
-        self.id = id
+        if 'id' in kwargs:
+            self.id = kwargs['id']
         # Review
-        self.review = review
+        if 'review' in kwargs:
+            self.review = kwargs['review']
         # Sentiment
         if self.review:
             self.sentiment = analyze_review_sentiments(self.review)

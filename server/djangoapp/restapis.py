@@ -81,17 +81,9 @@ def get_dealer_reviews_from_cf(url, dealerId):
         # Get the row list in JSON as reviews
         reviews = json_result["entries"]
         for review in reviews:
+            print(review)
             # Create a DealerReview object with values in `review` object
-            review_obj = DealerReview(review['dealership'],
-                                      review['name'],
-                                      review['purchase'],
-                                      review['review'],
-                                      review['purchase_date'],
-                                      review['car_make'],
-                                      review['car_model'],
-                                      review['car_year'],
-                                      review['id'],
-                                      )
+            review_obj = DealerReview(review.items())
             results.append(review_obj)
 
     return results
