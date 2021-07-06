@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
-from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
+from .models import CarModel
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request, RestException
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -45,9 +45,9 @@ def login_request(request):
             return redirect('djangoapp:index')
         else:
             # If not, return to login page again
-            return render(request, 'djangoapp/user_login.html', context)
+            return render(request, 'djangoapp/registration.html', context)
     else:
-        return render(request, 'djangoapp/user_login.html', context)
+        return render(request, 'djangoapp/registration.html', context)
 
 
 # Create a `logout_request` view to handle sign out request
@@ -113,33 +113,50 @@ def get_dealer_details(request, dealer_id):
         # Get reviews from the URL
         reviews = get_dealer_reviews_from_cf(url, dealer_id)
         context['reviews'] = reviews
-        # Concat all dealer's reviews
-        # dealer_reviews = ' '.join(['Review: ' + review.review + ' Sentiment: ' + review.sentiment + '\n' for review in reviews])
-        # Return a list of dealer's reviews and their sentiment
-        # return HttpResponse(dealer_reviews)
-        return render(request, 'djangoapp/index.html', context)
+
+        url = 'https://c12e13d7.eu-gb.apigw.appdomain.cloud/api/dealership'
+        try:
+            dealer = get_dealers_from_cf(url, id=dealer_id)
+        except RestException as e1:
+            return HttpResponse('Rest Exception \n' + str(e1))
+        if len(dealer) == 0:
+            context['dealer'] = {'id': dealer_id, 'full_name': "No name found"}
+        else:
+            context['dealer'] = dealer[0]      
+          
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
     
-    # if request.method == "GET":
-    #     cars = CarModel.objects.filter(dealer_id=dealer_id)
-    #     context = {"cars": cars, "dealer_id": dealer_id,
-    #                "dealer_name": dealer_name}
-    #     add_review_view = render(request, 'djangoapp/add_review.html', context)
-    # elif request.method == "POST":
-    url = "https://c12e13d7.eu-gb.apigw.appdomain.cloud/api/review"
-    if not request.user.is_authenticated:
-        return {'error': 'Add Review method: Not registered user'}
-    review = {}
-    review["id"] = uuid4()
-    review["time"] = datetime.utcnow().isoformat()
-    review["dealership"] = dealer_id
-    review["review"] = "This is a great car dealer"
-    review["name"] = request.user.first_name + ' ' + request.user.last_name
+    if request.method == "GET":
+        cars = CarModel.objects.filter(dealer_id=dealer_id)
+        context = {"cars": cars, "dealer_id": dealer_id,
+                   "dealer_name": dealer_name}
+        return render(request, 'djangoapp/add_review.html', context)
+    elif request.method == "POST":
+        url = "https://c12e13d7.eu-gb.apigw.appdomain.cloud/api/review"
+        if not request.user.is_authenticated:
+            return {'error': 'Add Review method: Not registered user'}
+        review = {}
+        review["id"] = uuid4()
+        review["time"] = datetime.utcnow().isoformat()
+        review['dealership'] = int(dealer_id)
+        review["review"] = request.POST['content']
+        review["name"] = request.user.first_name + ' ' + request.user.last_name        
+        review['purchase'] = True if request.POST['purchasecheck'] == 'on' else False
+        try:
+            purch_date = datetime.strptime(request.POST['purchasedate'][:10], '%Y-%m-%d')
+            review['purchase_date'] = purch_date.strftime('%m/%d/%Y')
+        except ValueError as v1:
+            print('Error converting datetime: ' + str(v1))
+        car_model = CarModel.objects.get(id=request.POST['car'])
+        review['car_make'] = car_model.carmake.name
+        review['car_model'] = car_model.name
+        review['car_year'] = car_model.year.strftime("%Y")
 
-    json_payload = {}
-    json_payload["review"] = review
-    
-    resp = post_request(url, json_payload, dealerId=dealer_id)
-    print(resp)
+        json_payload = {}
+        json_payload["review"] = review
+        
+        return post_request(url, json_payload, dealerId=dealer_id)
+        

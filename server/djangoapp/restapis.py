@@ -14,6 +14,9 @@ import json
 from .models import CarDealer
 from requests.auth import HTTPBasicAuth
 
+class RestException(Exception):
+    pass
+
 def get_request(url, **kwargs):
     print(kwargs)
     print("GET from {} ".format(url))
@@ -37,7 +40,7 @@ def get_request(url, **kwargs):
 def post_request(url, json_payload, **kwargs):
     response = requests.post(url, headers={'Content-Type': 'application/json'}, params=kwargs, json=json_payload)
     if response.status_code != 200:
-        raise RestException('the call to url: {} return status {} message: {}'.format(url, status_code, response.text))
+        raise RestException('the call to url: {} return status {} message: {}'.format(url, response.status_code, response.text))
     return response.text
 
 # Create a get_dealers_from_cf method to get dealers from a cloud function
@@ -48,7 +51,7 @@ def get_dealers_from_cf(url, **kwargs):
     '''
     results = []
     # Call get_request with a URL parameter
-    json_result = get_request(url)
+    json_result = get_request(url, **kwargs)
     if json_result:
         # Get the row list in JSON as dealers
         dealers = json_result["entries"]
@@ -81,9 +84,8 @@ def get_dealer_reviews_from_cf(url, dealerId):
         # Get the row list in JSON as reviews
         reviews = json_result["entries"]
         for review in reviews:
-            print(review)
             # Create a DealerReview object with values in `review` object
-            review_obj = DealerReview(review.items())
+            review_obj = DealerReview(review)
             results.append(review_obj)
 
     return results
@@ -103,7 +105,6 @@ def analyze_review_sentiments(text):
     params["features"] = {"sentiment": {}}
     response = requests.get(url, params=params, headers={'Content-Type': 'application/json'},
                                         auth=HTTPBasicAuth('apikey', api_key))
-    print(response.text)
     if response.status_code == 422:
         return 'neutral'
     try:

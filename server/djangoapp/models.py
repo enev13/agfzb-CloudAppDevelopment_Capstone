@@ -41,7 +41,8 @@ class CarModel(models.Model):
     carmake = models.ForeignKey(to=CarMake, on_delete=models.CASCADE)
     name = models.CharField(null=False, max_length=45, default="A6")
     dealerId = models.IntegerField(null=True)
-    cartype = models.CharField(max_length=45, choices=TYPE_CHOICES, default=SEDAN)
+    cartype = models.CharField(
+        max_length=45, choices=TYPE_CHOICES, default=SEDAN)
     year = models.DateField(null=True)
 
     def __str__(self):
@@ -87,40 +88,30 @@ class CarDealer:
 
 
 # <HINT> Create a plain Python class `DealerReview` to hold review data
-class DealerReview():
-    
-    def __init__(self, **kwargs):
+class DealerReview(object):
+
+    def __init__(self, review):
         from .restapis import analyze_review_sentiments
         # Dealership
-        if 'dealership' in kwargs:
-            self.dealership = kwargs['dealership']
+        self.dealership = review['dealership'] if 'dealership' in review else 0
         # Reviewer name
-        if 'name' in kwargs:
-            self.name = kwargs['name']
+        self.name = review['name'] if 'name' in review else ''
         # Purchase
-        if 'purchase' in kwargs:
-            self.name = kwargs['purchase']
+        self.name = review['purchase'] if 'purchase' in review else False
         # Purchase date
-        if 'purchase_date' in kwargs:
-            self.purchase_date = kwargs['purchase_date']
+        self.purchase_date = review['purchase_date'] if 'purchase_date' in review else 0
         # Car Make
-        if 'car_make' in kwargs:
-            self.car_make = kwargs['car_make']
+        self.car_make = review['car_make'] if 'car_make' in review else ''
         # Car Model
-        if 'car_model' in kwargs:
-            self.car_model = kwargs['car_model']
+        self.car_model = review['car_model'] if 'car_model' in review else ''
         # Car year
-        if 'car_year' in kwargs:
-            self.car_year = kwargs['car_year']
+        self.car_year = review['car_year'] if 'car_year' in review else 0
         # Id
-        if 'id' in kwargs:
-            self.id = kwargs['id']
+        self.id = review['id'] if 'id' in review else 0
         # Review
-        if 'review' in kwargs:
-            self.review = kwargs['review']
+        self.review = review['review'] if 'review' in review else ''
         # Sentiment
-        if self.review:
-            self.sentiment = analyze_review_sentiments(self.review)
+        self.sentiment = analyze_review_sentiments(self.review) if self.review else 'neutral'
 
     def __str__(self):
         return "Dealership {} has receieved a {} review by {}".format(self.dealership, self.sentiment, self.name)
