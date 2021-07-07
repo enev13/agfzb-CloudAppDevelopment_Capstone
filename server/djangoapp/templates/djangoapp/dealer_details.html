@@ -48,7 +48,7 @@
     </nav>
     <!-- Add reviews as cards -->
     {% if user.is_authenticated %}
-    <a class="btn btn-primary" href="{% url 'djangoapp:add_review' dealer.id dealer.full_name %}">Add Review</a>
+    <a class="btn btn-primary" href="{% url 'djangoapp:add_review' dealer.id %}">Add Review</a>
     {% endif %}
     <h1>Reviews for {{dealer.full_name}}</h1>
     {% if reviews %}

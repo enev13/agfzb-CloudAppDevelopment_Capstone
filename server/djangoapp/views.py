@@ -127,9 +127,15 @@ def get_dealer_details(request, dealer_id):
         return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
-def add_review(request, dealer_id, dealer_name):
-    
+def add_review(request, dealer_id):
     if request.method == "GET":
+        url = 'https://c12e13d7.eu-gb.apigw.appdomain.cloud/api/dealership'
+        try:
+            dealer = get_dealers_from_cf(url, id=dealer_id)
+        except RestException as e1:
+            return HttpResponse('Rest Exception \n' + str(e1))
+        if len(dealer):
+            dealer_name = dealer['full_name']
         cars = CarModel.objects.filter(dealer_id=dealer_id)
         context = {"cars": cars, "dealer_id": dealer_id,
                    "dealer_name": dealer_name}
