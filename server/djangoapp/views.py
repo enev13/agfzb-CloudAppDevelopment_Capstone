@@ -136,7 +136,7 @@ def add_review(request, dealer_id):
             return HttpResponse('Rest Exception \n' + str(e1))
         if len(dealer):
             dealer_name = dealer[0].full_name
-        cars = CarModel.objects.filter(dealer_id=dealer_id)
+        cars = CarModel.objects.filter(dealerId=dealer_id)
         context = {"cars": cars, "dealer_id": dealer_id,
                    "dealer_name": dealer_name}
         return render(request, 'djangoapp/add_review.html', context)
