@@ -54,7 +54,7 @@ class CarModel(models.Model):
             + " "
             + self.cartype
             + " dealer:"
-            + str(self.dealer)
+            + str(self.dealerId)
             + " year:"
             + str(self.year)
         )
