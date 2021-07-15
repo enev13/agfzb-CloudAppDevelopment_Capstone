@@ -145,7 +145,7 @@ def add_review(request, dealer_id):
         if not request.user.is_authenticated:
             return {'error': 'Add Review method: Not registered user'}
         review = {}
-        review["id"] = uuid4()
+        review["id"] = str(uuid4())
         review["time"] = datetime.utcnow().isoformat()
         review['dealership'] = int(dealer_id)
         review["review"] = request.POST['content']
