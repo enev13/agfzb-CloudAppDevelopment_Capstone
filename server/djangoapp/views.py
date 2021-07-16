@@ -164,5 +164,9 @@ def add_review(request, dealer_id):
         json_payload = {}
         json_payload["review"] = review
         
-        return post_request(url, json_payload, dealerId=dealer_id)
+        try:
+            post_request(url, json_payload)
+        except RestException as e1:
+            return HttpResponse('Rest Exception \n' + str(e1))
+        return redirect('djangoapp:dealer_details', dealer_id)
         
